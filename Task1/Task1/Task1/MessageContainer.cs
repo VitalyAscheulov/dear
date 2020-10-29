@@ -22,8 +22,8 @@ namespace Task1
         private List<Message> GetMessages(string json)
         {
             List<Message> result = new List<Message>();
-            using var doc = JsonDocument.Parse(json);
-            JsonElement root = doc.RootElement;
+            var doc = JsonDocument.Parse(json);
+            JsonElement root = doc.RootElement; 
             var msg = root.EnumerateObject();
 
             while (msg.MoveNext())
