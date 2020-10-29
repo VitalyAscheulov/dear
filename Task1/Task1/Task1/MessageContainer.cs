@@ -26,20 +26,20 @@ namespace Task1
 
         public List<Message> GetMessages(string json)
         {
-            List<Message> res = new List<Message>();
+            List<Message> result = new List<Message>();
             using var doc = JsonDocument.Parse(json);
             JsonElement root = doc.RootElement;
-            var messages = root.EnumerateObject();
+            var msg = root.EnumerateObject();
 
-            while (messages.MoveNext())
+            while (msg.MoveNext())
             {
-                var message = messages.Current;
+                var message = msg.Current;
                 Enum.TryParse(message.Name, out MsgCodes msgcode);
                 var value = message.Value.ToString();
-                res.Add(new Message(){MsgCode = msgcode, Value = value});
+                result.Add(new Message(){MsgCode = msgcode, Value = value});
             }
 
-            return res;
+            return result;
         }
     }
 }
