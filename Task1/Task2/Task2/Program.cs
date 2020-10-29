@@ -9,10 +9,9 @@ namespace Task2
 {
     class Program
     {
-
         private static HttpListener _listener;
         [ThreadStatic]
-        public static int counter;
+        private static int _counter;
 
         static void Main(string[] args)
         {
@@ -30,17 +29,17 @@ namespace Task2
             _listener.BeginGetContext(OnContext, null);
             Console.WriteLine($"{DateTime.UtcNow} Handling request");
 
-            var buf = Encoding.ASCII.GetBytes($"<HTML><BODY> Thread {Thread.CurrentThread.ManagedThreadId}, request {counter} </BODY></HTML>");
+            var buf = Encoding.ASCII.GetBytes($"<HTML><BODY> Thread {Thread.CurrentThread.ManagedThreadId}, request {_counter} </BODY></HTML>");
             ctx.Response.ContentType = "text/html";
 
             // simulate work
-            Thread.Sleep(5000);
+            Thread.Sleep(10000);
 
-            ctx.Response.OutputStream.Write(buf, 0, buf.Length); 
-            counter++;
+            ctx.Response.OutputStream.Write(buf, 0, buf.Length);
             ctx.Response.OutputStream.Close();
 
             Console.WriteLine($"{DateTime.UtcNow} finished");
+            _counter++;
         }
 
     }
