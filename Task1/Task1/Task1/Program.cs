@@ -8,7 +8,7 @@ namespace Task1
         static void Main(string[] args)
         {
             MessageContainer messageContainer = new MessageContainer();
-            var v = messageContainer[MsgCodes.Msg2];
+            var v = messageContainer[MsgCodes.Msg2].Value;
         }
 
        }

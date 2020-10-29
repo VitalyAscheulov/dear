@@ -24,7 +24,7 @@ namespace Task1
             set { messages[(int)index] = value; }
         }
 
-        public List<Message> GetMessages(string json)
+        private List<Message> GetMessages(string json)
         {
             List<Message> result = new List<Message>();
             using var doc = JsonDocument.Parse(json);
