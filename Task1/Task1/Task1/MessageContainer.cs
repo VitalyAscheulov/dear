@@ -18,10 +18,9 @@ namespace Task1
             messages = GetMessages(File.ReadAllText(@$"{locale}.json")).ToList();
         }
 
-        public Message this[MsgCodes index]
+        public string this[MsgCodes index]
         {
-            get { return messages[(int)index]; }
-            set { messages[(int)index] = value; }
+            get { return messages[(int)index].Value; }
         }
 
         private List<Message> GetMessages(string json)
