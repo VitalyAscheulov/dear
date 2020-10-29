@@ -11,6 +11,8 @@ namespace Task2
     {
 
         private static HttpListener _listener;
+        [ThreadStatic]
+        public static int counter;
 
         static void Main(string[] args)
         {
@@ -24,11 +26,9 @@ namespace Task2
 
         private static void OnContext(IAsyncResult ar)
         {
-            var counter = 1;
             var ctx = _listener.EndGetContext(ar);
             _listener.BeginGetContext(OnContext, null);
-
-            Console.WriteLine(DateTime.UtcNow.ToString("HH:mm:ss.fff") + " Handling request");
+            Console.WriteLine($"{DateTime.UtcNow} Handling request");
 
             var buf = Encoding.ASCII.GetBytes($"<HTML><BODY> Thread {Thread.CurrentThread.ManagedThreadId}, request {counter} </BODY></HTML>");
             ctx.Response.ContentType = "text/html";
@@ -36,10 +36,11 @@ namespace Task2
             // simulate work
             Thread.Sleep(5000);
 
-            ctx.Response.OutputStream.Write(buf, 0, buf.Length); ;
+            ctx.Response.OutputStream.Write(buf, 0, buf.Length); 
+            counter++;
             ctx.Response.OutputStream.Close();
 
-            Console.WriteLine(DateTime.UtcNow.ToString("HH:mm:ss.fff") + " finished");
+            Console.WriteLine($"{DateTime.UtcNow} finished");
         }
 
     }
