@@ -10,19 +10,15 @@ namespace Task1
 
     public class MessageContainer
     {
-        private List<Message> messages;
+        private List<Message> _messages;
 
         public MessageContainer()
         {
             var locale = CultureInfo.CurrentCulture.Name;
-            messages = GetMessages(File.ReadAllText(@$"{locale}.json")).ToList();
+            _messages = GetMessages(File.ReadAllText(@$"{locale}.json")).ToList();
         }
 
-        public string this[MsgCodes index]
-        {
-            get { return messages[(int)index].Value; }
-        }
-
+        public string this[MsgCodes index] => _messages[(int)index].Value;
         private List<Message> GetMessages(string json)
         {
             List<Message> result = new List<Message>();
