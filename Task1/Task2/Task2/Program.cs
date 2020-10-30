@@ -38,7 +38,7 @@ namespace Task2
             while (KeepGoing)
             {
                 HttpListenerContext context = await listener.GetContextAsync();
-                HandleRequestAsync(context);
+                await HandleRequestAsync(context);
             }
         }
 
