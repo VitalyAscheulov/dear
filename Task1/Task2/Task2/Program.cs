@@ -38,13 +38,15 @@ namespace Task2
             while (KeepGoing)
             {
                 HttpListenerContext context = await listener.GetContextAsync();
-                await HandleRequestAsync(context);
+                HandleRequestAsync(context);
             }
         }
 
         static async Task HandleRequestAsync(HttpListenerContext context)
         {
-            await Task.Delay(1000);
+            Console.WriteLine($"start thread={Thread.CurrentThread.ManagedThreadId} time={DateTime.Now}");
+            await Task.Delay(5000);
+            Console.WriteLine($"end thread={Thread.CurrentThread.ManagedThreadId} time={DateTime.Now}");
             Perform(context);
         }
 
