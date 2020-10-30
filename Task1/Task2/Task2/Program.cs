@@ -18,7 +18,6 @@ namespace Task2
 
         static void Main(string[] args)
         {
-
             HttpListener listener = new HttpListener();
             listener.Prefixes.Add("http://localhost:1234/");
             listener.Start();
@@ -36,7 +35,6 @@ namespace Task2
 
         static async Task ProcessAsync(HttpListener listener)
         {
-
             while (KeepGoing)
             {
                 HttpListenerContext context = await listener.GetContextAsync();
