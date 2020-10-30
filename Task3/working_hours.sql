@@ -1,44 +1,77 @@
+CREATE TABLE #users
+(
+    [empid] int,
+    [name] NVARCHAR(255)
+);
+
+DECLARE @StartDate datetime = '2020-01-01 00:00:00';
+DECLARE @EndDate datetime = '2020-01-04 00:00:00';
+DECLARE @EmpID nvarchar(6) = 1;
+
+
 CREATE TABLE #working_logs
 (
-    [userid] int,
+    [empid] int,
     [Time] DATETIME,
     [In_Out] VARCHAR(3)
 );
+
+INSERT #users
+VALUES
+(1, 'test user')
+
+
 INSERT #working_logs
 VALUES
 (1, '2020-01-01 09:00:00', 'In'),
-(1, '2020-01-01 12:35:00', 'Out'),
+(1, '2020-01-01 12:30:00', 'Out'),
 (1, '2020-01-01 13:00:00', 'In'),
 (1, '2020-01-01 17:00:00', 'Out'),
 (1, '2020-01-02 23:00:00', 'In'),
 (1, '2020-01-03 07:00:00', 'Out');
 
-CREATE CLUSTERED INDEX in_out ON #working_logs (In_Out);
 
-WITH t
+CREATE CLUSTERED INDEX idx ON #working_logs (empid, [time]);
+
+WITH
+CTE_Start
 AS
 (
-    SELECT COALESCE(i.[userid], o.[userid]) AS [userid]
-         , COALESCE(i.[Date], o.[Date]) AS [Date]
-         , COALESCE(i.[Time], CAST(o.[Time] AS DATE)) AS [in]
-         , COALESCE(o.[Time], DATEADD(DAY, 1, CAST(i.[Time] AS DATE))) AS [out]
-         , RANK() OVER (PARTITION BY i.[Time] ORDER BY o.[Time]) AS r
-      FROM (SELECT [userid], CAST([Time] AS DATE) AS [Date], [Time] 
-             FROM #working_logs 
-            WHERE [In_Out] = 'In') AS i
- FULL JOIN (SELECT [userid], CAST([Time] AS DATE) AS [Date], [Time] 
-             FROM #working_logs 
-            WHERE [In_Out] = 'Out') AS o
-        ON i.[userid] = o.[userid]
-       AND i.[Date] = o.[Date]
-       AND i.[Time] < o.[Time]
+    SELECT
+        EmpID
+        ,SUM(DATEDIFF(minute, (CAST(att.[Time] AS datetime)), @StartDate)
+            * CASE WHEN In_Out = 'In' THEN +1 ELSE -1 END) AS SumStart
+    FROM
+        #working_logs AS att
+    WHERE
+        (EmpID = @EmpID OR @EmpID IS NULL)
+        AND att.[Time] < @StartDate
+    GROUP BY EmpID
 )
-SELECT [userid], [Date], 
-	SUM(DATEDIFF(MINUTE, [in], [out])) AS [Mins]
-  FROM t
-WHERE 
-r = 1
-GROUP BY [userid], [Date]
-ORDER BY [userid], [Date]
+,CTE_End
+AS
+(
+    SELECT
+        EmpID
+        ,SUM(DATEDIFF(minute, (CAST(att.[Time] AS datetime)), @StartDate)
+            * CASE WHEN In_Out = 'In' THEN +1 ELSE -1 END) AS SumEnd
+    FROM
+        #working_logs AS att
+    WHERE
+        (EmpID = @EmpID OR @EmpID IS NULL)
+        AND att.[Time] < @EndDate
+    GROUP BY EmpID
+)
 
-DROP TABLE #working_logs;
+SELECT
+    #users.[name],
+    CTE_End.EmpID
+    ,(SumEnd - ISNULL(SumStart, 0)) / 60.0 AS SumHours
+FROM
+    CTE_End
+    LEFT JOIN CTE_Start ON CTE_Start.EmpID = CTE_End.EmpID
+	inner join #users on CTE_End.empid = #users.empid
+
+
+DROP TABLE #working_logs
+DROP TABLE #users
